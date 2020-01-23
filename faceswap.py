@@ -22,10 +22,10 @@ from matplotlib import pyplot as plt
 
 import cv2
 
-def faceswap():
-    data =  cv2.imread("painting2.jpg")
+def faceswap(painting):
+    data =  cv2.imread(painting)
     fn_src={
-        "painting.jpg" : data
+        painting : data
     }
 
     fns_tar={

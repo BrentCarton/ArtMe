@@ -3,6 +3,8 @@ import sys
 import dlib
 import numpy as np
 import faceswap as fs
+import time
+import random
 
 cascPath = sys.argv[1]
 faceCascade = cv2.CascadeClassifier(cascPath)
@@ -11,11 +13,14 @@ video_capture = cv2.VideoCapture(0)
 i = int(0)
 f = int(0)
 
-def faceswap():
-    fs.faceswap()
+paintings = ["ingres.jpg", "Modigliani.jpg", "siberechts.jpg"]
 
-def faceDetection(i,f):
-    # Capture frame-by-frame
+def faceswap(painting):
+    fs.faceswap(painting)
+
+def faceDetection(i,f,painting):
+    painting = cv2.imread(painting)
+    cv2.imshow("painting", painting)
     ret, frame = video_capture.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = faceCascade.detectMultiScale(
@@ -39,19 +44,32 @@ def faceDetection(i,f):
     else:
         return 0
 
-while True:
-    face = faceDetection(i,f)
-    f = f + face
-    print(f)
-    # Display the resulting frame
-    if f == 100:
-        break
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-# When everything is done, release the capture
-video_capture.release()
-cv2.destroyAllWindows()
-faceswap()
-image = cv2.imread("test.png")
-cv2.imshow("image", image)
-cv2.waitKey(0)
+def runSwap(i,f,painting):
+    while True:
+        face = faceDetection(i,f,painting)
+        f = f + face
+        print(f)
+        if f == 100:
+            break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+while True:   
+    random.shuffle(paintings)
+    painting = paintings[0]     
+    runSwap(i,f,painting)
+    try:
+        faceswap(painting)
+        cv2.destroyAllWindows()
+        image = cv2.imread("test.png")
+    except:
+        print("error")
+        cv2.destroyAllWindows()
+        image = cv2.imread(painting)
+    
+    cv2.imshow("image", image)
+    if cv2.waitKey(1) & 0xFF == ord('o'):
+            video_capture.release()
+            break
+    time.sleep(30)
+    cv2.destroyAllWindows()
